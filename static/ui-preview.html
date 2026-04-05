@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>竹林 AI - UI 优化预览</title>
+    <link rel="stylesheet" href="/static/css/bamboo-modern.css" />
+    <style>
+      .demo-section {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 2rem;
+      }
+      .demo-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 2rem;
+        margin: 2rem 0;
+      }
+      .color-swatch {
+        width: 100%;
+        height: 80px;
+        border-radius: 0.5rem;
+        margin-bottom: 0.5rem;
+      }
+      .demo-group {
+        margin: 2rem 0;
+      }
+      .demo-group h2 {
+        margin-bottom: 1rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 2px solid #e2e8f0;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="hero-mist"></div>
+    
+    <div class="demo-section">
+      <header style="text-align: center; margin-bottom: 3rem;">
+        <h1 style="font-size: 3rem; margin-bottom: 1rem;">
+          <span class="text-gradient">竹林 AI</span> UI 优化预览
+        </h1>
+        <p style="font-size: 1.25rem; color: #64748b;">
+          清新 · 现代 · 专注 · 优雅
+        </p>
+      </header>
+
+      <!-- 配色系统 -->
+      <div class="demo-group">
+        <h2>🎨 配色系统</h2>
+        <div class="demo-grid">
+          <div>
+            <h3 style="margin-bottom: 1rem;">竹青色板</h3>
+            <div class="color-swatch" style="background: #f0fdf4;"></div>
+            <div class="color-swatch" style="background: #dcfce7;"></div>
+            <div class="color-swatch" style="background: #bbf7d0;"></div>
+            <div class="color-swatch" style="background: #86efac;"></div>
+            <div class="color-swatch" style="background: #4ade80;"></div>
+            <div class="color-swatch" style="background: #22c55e;"></div>
+            <div class="color-swatch" style="background: #16a34a;"></div>
+            <div class="color-swatch" style="background: #15803d;"></div>
+            <div class="color-swatch" style="background: #166534;"></div>
+            <div class="color-swatch" style="background: #14532d;"></div>
+          </div>
+          <div>
+            <h3 style="margin-bottom: 1rem;">中性灰板</h3>
+            <div class="color-swatch" style="background: #f8fafc;"></div>
+            <div class="color-swatch" style="background: #f1f5f9;"></div>
+            <div class="color-swatch" style="background: #e2e8f0;"></div>
+            <div class="color-swatch" style="background: #cbd5e1;"></div>
+            <div class="color-swatch" style="background: #94a3b8;"></div>
+            <div class="color-swatch" style="background: #64748b;"></div>
+            <div class="color-swatch" style="background: #475569;"></div>
+            <div class="color-swatch" style="background: #334155;"></div>
+            <div class="color-swatch" style="background: #1e293b;"></div>
+            <div class="color-swatch" style="background: #0f172a;"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 按钮系统 -->
+      <div class="demo-group">
+        <h2>🔘 按钮系统</h2>
+        <div style="display: flex; gap: 1rem; flex-wrap: wrap; margin: 1rem 0;">
+          <button class="bamboo-btn-primary">
+            <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"/>
+            </svg>
+            主按钮
+          </button>
+          <button class="bamboo-btn-secondary">次要按钮</button>
+          <button class="bamboo-btn-ghost">幽灵按钮</button>
+          <button class="bamboo-btn-danger">危险按钮</button>
+          <button class="bamboo-btn-primary" disabled>禁用状态</button>
+        </div>
+      </div>
+
+      <!-- 卡片面板 -->
+      <div class="demo-group">
+        <h2>📦 卡片面板</h2>
+        <div class="demo-grid">
+          <div class="bamboo-panel" style="padding: 1.5rem;">
+            <div class="bamboo-mini-label">多层记忆</div>
+            <div style="margin-top: 0.75rem; font-size: 1.25rem; font-weight: 600;">文风 + 人物卡 + 摘要</div>
+            <p style="margin-top: 0.5rem; font-size: 0.875rem; color: #64748b;">
+              AI 写作时自动引用，保持设定一致
+            </p>
+          </div>
+          <div class="bamboo-panel" style="padding: 1.5rem;">
+            <div class="bamboo-mini-label">按用途选模型</div>
+            <div style="margin-top: 0.75rem; font-size: 1.25rem; font-weight: 600;">不同功能可绑定不同 AI</div>
+            <p style="margin-top: 0.5rem; font-size: 0.875rem; color: #64748b;">
+              续写、摘要、大纲分别配置
+            </p>
+          </div>
+          <div class="bamboo-panel" style="padding: 1.5rem;">
+            <div class="bamboo-mini-label">版本安全</div>
+            <div style="margin-top: 0.75rem; font-size: 1.25rem; font-weight: 600;">AI 写入前自动保存快照</div>
+            <p style="margin-top: 0.5rem; font-size: 0.875rem; color: #64748b;">
+              随时查看和恢复历史版本
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- 表单元素 -->
+      <div class="demo-group">
+        <h2>📝 表单元素</h2>
+        <div style="max-width: 500px;">
+          <div style="margin-bottom: 1.5rem;">
+            <label class="bamboo-mini-label" style="display: block; margin-bottom: 0.5rem;">用户名</label>
+            <input type="text" placeholder="请输入用户名" value="admin" />
+          </div>
+          <div style="margin-bottom: 1.5rem;">
+            <label class="bamboo-mini-label" style="display: block; margin-bottom: 0.5rem;">密码</label>
+            <input type="password" placeholder="请输入密码" value="password123" />
+          </div>
+          <div style="margin-bottom: 1.5rem;">
+            <label class="bamboo-mini-label" style="display: block; margin-bottom: 0.5rem;">选择用途</label>
+            <select>
+              <option>正文续写</option>
+              <option selected>大纲扩写</option>
+              <option>摘要整理</option>
+            </select>
+          </div>
+          <div style="margin-bottom: 1.5rem;">
+            <label class="bamboo-mini-label" style="display: block; margin-bottom: 0.5rem;">多行文本</label>
+            <textarea rows="4" placeholder="请输入内容..."></textarea>
+          </div>
+        </div>
+      </div>
+
+      <!-- 标签与徽章 -->
+      <div class="demo-group">
+        <h2>🏷️ 标签与徽章</h2>
+        <div style="display: flex; gap: 0.75rem; flex-wrap: wrap; margin: 1rem 0;">
+          <span class="bamboo-chip">新书章节</span>
+          <span class="bamboo-chip">AI 续写</span>
+          <span class="bamboo-chip">已保存</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 1rem; margin: 1rem 0;">
+          <div style="display: flex; align-items: center; gap: 0.5rem;">
+            <span class="bamboo-status-dot" data-state="ok"></span>
+            <span>运行正常</span>
+          </div>
+          <div style="display: flex; align-items: center; gap: 0.5rem;">
+            <span class="bamboo-status-dot" data-state="error"></span>
+            <span>连接错误</span>
+          </div>
+          <div style="display: flex; align-items: center; gap: 0.5rem;">
+            <span class="bamboo-status-dot"></span>
+            <span>离线</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Toast 通知 -->
+      <div class="demo-group">
+        <h2>🔔 Toast 通知</h2>
+        <div style="display: flex; flex-direction: column; gap: 0.75rem; max-width: 400px;">
+          <div class="bamboo-toast">
+            <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+            </svg>
+            <span>章节保存成功！</span>
+          </div>
+          <div class="bamboo-toast" data-type="error">
+            <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/>
+            </svg>
+            <span>AI 调用失败，请检查配置</span>
+          </div>
+          <div class="bamboo-toast" data-type="warning">
+            <svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/>
+            </svg>
+            <span>本章内容较长，建议分段保存</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 阴影效果 -->
+      <div class="demo-group">
+        <h2>🌑 阴影效果</h2>
+        <div class="demo-grid">
+          <div style="padding: 1rem; background: white; border-radius: 0.5rem; box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);">
+            <div style="font-size: 0.75rem; color: #64748b; margin-bottom: 0.5rem;">shadow-xs</div>
+            <div style="height: 60px; background: #f1f5f9; border-radius: 0.375rem;"></div>
+          </div>
+          <div style="padding: 1rem; background: white; border-radius: 0.5rem; box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);">
+            <div style="font-size: 0.75rem; color: #64748b; margin-bottom: 0.5rem;">shadow-sm</div>
+            <div style="height: 60px; background: #f1f5f9; border-radius: 0.375rem;"></div>
+          </div>
+          <div style="padding: 1rem; background: white; border-radius: 0.5rem; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
+            <div style="font-size: 0.75rem; color: #64748b; margin-bottom: 0.5rem;">shadow-md</div>
+            <div style="height: 60px; background: #f1f5f9; border-radius: 0.375rem;"></div>
+          </div>
+          <div style="padding: 1rem; background: white; border-radius: 0.5rem; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);">
+            <div style="font-size: 0.75rem; color: #64748b; margin-bottom: 0.5rem;">shadow-lg</div>
+            <div style="height: 60px; background: #f1f5f9; border-radius: 0.375rem;"></div>
+          </div>
+          <div style="padding: 1rem; background: white; border-radius: 0.5rem; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);">
+            <div style="font-size: 0.75rem; color: #64748b; margin-bottom: 0.5rem;">shadow-xl</div>
+            <div style="height: 60px; background: #f1f5f9; border-radius: 0.375rem;"></div>
+          </div>
+          <div style="padding: 1rem; background: white; border-radius: 0.5rem; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);">
+            <div style="font-size: 0.75rem; color: #64748b; margin-bottom: 0.5rem;">shadow-2xl</div>
+            <div style="height: 60px; background: #f1f5f9; border-radius: 0.375rem;"></div>
+          </div>
+        </div>
+      </div>
+
+      <footer style="text-align: center; margin-top: 4rem; padding-top: 2rem; border-top: 1px solid #e2e8f0;">
+        <p style="color: #94a3b8; font-size: 0.875rem;">
+          竹林 AI UI 优化预览 · v1.0.0 · 2026-04-05
+        </p>
+        <p style="color: #64748b; font-size: 0.875rem; margin-top: 0.5rem;">
+          查看完整文档：<a href="https://github.com/logos-cn/zhulin-ai/blob/main/docs/UI-OPTIMIZATION.md" target="_blank">GitHub</a>
+        </p>
+      </footer>
+    </div>
+  </body>
+</html>
