@@ -1,8 +1,17 @@
-# 竹林 AI
+# 竹林 AI (Bamboo AI)
 
-本项目是一个面向中文长篇创作场景的本地化多用户 AI 小说辅助写作软件。它提供账号管理、书库、章节写作、AI 续写、大纲/摘要生成、人物卡与关系网提取、历史快照、全局小说助手等能力，适合个人工作站、小团队内网和自托管部署。
+> 面向中文长篇创作场景的本地化多用户 AI 小说辅助写作软件
 
-当前版本：`0.2.0`
+**当前版本**: v0.2.0  
+**最后更新**: 2026-04-05  
+**GitHub**: https://github.com/logos-cn/zhulin-ai  
+**许可证**: MIT
+
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![Python](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/downloads/)
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.115+-green.svg)](https://fastapi.tiangolo.com/)
+
+本项目提供账号管理、书库、章节写作、AI 续写、大纲/摘要生成、人物卡与关系网提取、历史快照、全局小说助手等能力，适合个人工作站、小团队内网和自托管部署。
 
 ## 当前能力
 
@@ -65,108 +74,115 @@
 
 ## 快速启动
 
-### 1. 准备环境
-
-- Python 3.9 或更高版本
-- 推荐使用虚拟环境
-
-### 2. 安装依赖
+### 🚀 5 分钟快速开始
 
 ```bash
+# 1. 克隆代码
+git clone https://github.com/logos-cn/zhulin-ai.git
+cd zhulin-ai
+
+# 2. 安装依赖
 python -m venv .venv
-```
-
-Windows:
-
-```powershell
-.venv\Scripts\Activate.ps1
+source .venv/bin/activate  # Windows: .venv\Scripts\Activate.ps1
 pip install -r requirements.txt
-```
 
-Linux / macOS:
+# 3. 配置环境变量
+cp .env.example .env
+# 编辑 .env，修改 JWT_SECRET_KEY 为随机字符串
 
-```bash
-source .venv/bin/activate
-pip install -r requirements.txt
-```
+# 4. 初始化管理员
+python manage.py reset-admin --username admin --password YourPassword
 
-### 3. 配置环境变量
-
-复制 `.env.example`，按你的实际环境填写。
-
-生产环境至少要设置：
-
-- `JWT_SECRET_KEY`
-- `APP_ENV=production`
-- `DATABASE_URL`
-
-### 4. 初始化管理员
-
-```bash
-python manage.py reset-admin --username admin --password YourStrongPassword
-```
-
-### 5. 启动服务
-
-直接使用 Uvicorn：
-
-```bash
+# 5. 启动服务
 uvicorn main:app --host 0.0.0.0 --port 199
 ```
 
-或在 Linux / macOS 下使用项目自带脚本：
+访问：http://127.0.0.1:199/login
+
+### 🐳 Docker 快速部署
 
 ```bash
-bash start.sh
+docker run -d \
+  --name zhulin-ai \
+  -p 199:199 \
+  -e JWT_SECRET_KEY=$(python3 -c "import secrets; print(secrets.token_urlsafe(32))") \
+  -v $(pwd)/data:/app/data \
+  -v $(pwd)/logs:/app/logs \
+  ghcr.io/logos-cn/zhulin-ai:latest
 ```
 
-启动后访问：
+### 📜 一键部署脚本（Linux 服务器）
 
-```text
-http://127.0.0.1:199/login
+```bash
+curl -O https://raw.githubusercontent.com/logos-cn/zhulin-ai/main/deploy/deploy.sh
+chmod +x deploy.sh
+sudo ./deploy.sh
 ```
+
+详见：[docs/DEPLOYMENT.md](docs/DEPLOYMENT.md#十阿里云服务器部署实战)
 
 ## 部署文档
 
 详细部署方法见：
 
-- [docs/DEPLOYMENT.md](/C:/Users/刘哲言/desktop/NOVA/docs/DEPLOYMENT.md)
+- **[docs/DEPLOYMENT.md](docs/DEPLOYMENT.md)** - 完整部署指南
 
 内容包括：
 
-- Windows 本地部署
-- Linux / macOS 本地部署
-- Linux 服务器 systemd 常驻部署
-- Docker 部署
-- Nginx 反向代理示例
-- 环境变量说明
-- 日志、数据库与升级建议
+- ✅ Windows / Linux / macOS 本地部署
+- ✅ Linux 服务器 systemd 常驻部署（含一键部署脚本）
+- ✅ Docker & Docker Compose 部署
+- ✅ 阿里云服务器实战指南
+- ✅ Nginx 反向代理配置
+- ✅ 环境变量完整说明
+- ✅ 数据库备份与恢复
+- ✅ 监控告警与日志管理
+- ✅ 安全加固建议
+- ✅ 故障排查手册
 
-## 敏感信息与私有资料
+## 🔒 敏感信息与私有资料
 
 - 仓库默认不会提交 `.env`、`.env.*`、私钥文件、`*.private.json`、`*.local.json`
 - 你的 AI API Key 请仅放在运行环境变量或本地 `.env` 中，不要写入代码或提交到仓库
 - 本地导入的原著文本、文风素材、私有提示词文件建议放在 `data/` 或你自己的本地目录，不要纳入版本控制
 
-## 生产环境注意事项
+## ⚠️ 生产环境注意事项
 
 - 生产环境不要使用默认的 `JWT_SECRET_KEY`
-- SQLite 适合中小规模部署；若后续并发继续增长，可迁移到 PostgreSQL
+- SQLite 适合中小规模部署（并发 < 100）；若后续并发继续增长，可迁移到 PostgreSQL
 - 外部文档导入提取会消耗较多内存和算力，建议为后台任务预留资源
 - 当前已为 SQLite 增加 `WAL` 与 `busy_timeout`，但超大规模并发写入仍不建议长期依赖 SQLite
+- 定期备份数据库（管理后台支持自动备份）
 
-## 路线说明
+## 🗺️ 路线说明
 
 当前仓库以可运行的本地化创作工具为目标，优先保证：
 
-- 自托管可部署
-- 多用户可用
-- 中文小说创作体验
-- OpenAI 兼容接口可接入
+- ✅ 自托管可部署
+- ✅ 多用户可用
+- ✅ 中文小说创作体验
+- ✅ OpenAI 兼容接口可接入
 
 后续可继续补充：
 
-- Docker Compose
-- 更细的章节树拖拽管理
-- 更强的 AI 助手可执行动作
-- 更大规模文档提取的流式与分层存储方案
+- [ ] Docker Compose 编排与镜像发布
+- [ ] 更细的章节树拖拽管理
+- [ ] 更强的 AI 助手可执行动作
+- [ ] 更大规模文档提取的流式与分层存储方案
+- [ ] PostgreSQL 迁移支持
+
+---
+
+## 📚 相关文档
+
+- **[部署指南](docs/DEPLOYMENT.md)** - 完整部署与运维文档
+- **[迭代日志](docs/ITERATIONS.md)** - 版本更新记录
+- **[系统服务模板](deploy/systemd/zhulin-ai.service)** - systemd 配置示例
+
+## 🤝 参与贡献
+
+欢迎提交 Issue 和 Pull Request！
+
+## 📄 许可证
+
+MIT License - 详见 [LICENSE](LICENSE) 文件
