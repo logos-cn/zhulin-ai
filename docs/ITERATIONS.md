@@ -6,7 +6,7 @@
 
 ## 开发日志同步说明
 
-### 2026-04-05 代码同步完成 ✅
+### 2026-04-05 代码同步与文档完善 ✅
 
 **同步信息**：
 - 从阿里云服务器 (112.124.59.54) 同步最新代码到 GitHub 仓库
@@ -16,11 +16,37 @@
 - GitHub 仓库已更新：https://github.com/logos-cn/zhulin-ai/commits/main
 
 **同步的 commits**：
+- `a25386e` - feat: 添加一键部署脚本 deploy.sh - 支持 Ubuntu/Debian/CentOS
+- `3dc9f38` - docs: 优化 README - 添加徽章、快速部署脚本、相关文档链接
+- `9f0758f` - docs: 完善部署文档 - 添加阿里云实战、备份配置、监控告警、故障排查
+- `832c7d6` - docs: 完善 2026-04-05 代码同步日志
 - `7800a36` - docs: 添加 2026-04-05 代码同步日志
 - `61cc268` - feat: sync latest changes - AI assistant improvements, memory system fixes, security enhancements
 - `dcf34fe` - feat: sync latest changes - AI assistant improvements, memory system fixes, security enhancements (服务器)
 - `cb83a8f` - feat: improve assistant flow and seamless memory
 - `fff029f` - release: v0.2.0 backups, project archives, characters and world schema
+
+**文档更新内容**：
+1. **DEPLOYMENT.md** - 新增章节：
+   - 阿里云服务器部署实战（安全组、一键部署脚本）
+   - 数据库备份配置（自动备份、手动备份、恢复）
+   - 监控与告警（健康检查、日志监控、资源监控）
+   - 安全加固建议（生产环境必做、可选加固）
+   - 故障排查（服务无法启动、数据库锁定、AI 调用失败）
+
+2. **README.md** - 优化内容：
+   - 添加项目徽章（License、Python、FastAPI）
+   - 5 分钟快速开始指南
+   - Docker 快速部署命令
+   - 一键部署脚本使用说明
+   - 相关文档链接
+
+3. **deploy/deploy.sh** - 新增文件：
+   - 一键部署脚本（179 行）
+   - 支持 Ubuntu/Debian/CentOS
+   - 自动配置 systemd 服务
+   - 自动生成 JWT 密钥
+   - 交互式管理员密码设置
 
 **本地开发环境**：
 - 代码路径：`/home/admin/openclaw/workspace/zhulin-ai`
