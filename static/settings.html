@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>竹林 AI | 全局设置、模型配置与 API 配置</title>
+    <script src="/static/js/tailwind-config.js"></script>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,typography"></script>
+    <link rel="stylesheet" href="/static/css/bamboo.css" />
+  </head>
+  <body data-page="settings" data-protected="true">
+    <template id="page-template">
+      <section class="grid gap-6 xl:grid-cols-[minmax(0,1.55fr)_420px]">
+        <div class="space-y-6">
+          <div class="bamboo-panel p-6">
+            <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+              <div>
+                <div class="bamboo-mini-label">当前书籍</div>
+                <h2 class="bamboo-display mt-2 text-3xl font-semibold text-bamboo-deep">写作记忆与文风设置</h2>
+              </div>
+              <select class="bamboo-field max-w-xs" id="settings-book-select"></select>
+            </div>
+            <form class="mt-6 space-y-4" id="settings-book-form">
+              <input class="bamboo-field" id="settings-book-title" placeholder="书名" />
+              <input class="bamboo-field" id="settings-book-genre" placeholder="题材，如仙侠 / 悬疑 / 科幻" />
+              <textarea class="bamboo-field min-h-[8rem] resize-y" id="settings-book-description" placeholder="书籍简介"></textarea>
+              <div class="rounded-[1.25rem] bg-bamboo-mist/55 p-4">
+                <div>
+                  <div class="bamboo-mini-label">文风预设</div>
+                  <p class="mt-2 text-sm leading-7 text-slate-500">
+                    预设已改为分类多选，来源于更适合小说协作的 Yukino 提示词库。建议一次勾选 1-3 项，再配合自定义要求做微调。
+                  </p>
+                </div>
+                <div class="mt-4 grid gap-4 xl:grid-cols-2">
+                  <label class="block">
+                    <span class="bamboo-mini-label">分类多选</span>
+                    <select class="bamboo-field mt-2 min-h-[18rem]" id="settings-book-style-preset" multiple size="14"></select>
+                    <span class="mt-2 block text-xs leading-6 text-slate-500">
+                      按住 <kbd>Ctrl</kbd>/<kbd>Command</kbd> 可多选。可把“写作基础”和“具体文风”搭配使用。
+                    </span>
+                  </label>
+                  <label class="block">
+                    <span class="bamboo-mini-label">自定义追加要求</span>
+                    <textarea
+                      class="bamboo-field mt-2 min-h-[18rem] resize-y"
+                      id="settings-book-style-custom"
+                      placeholder="例如：使用第三人称近距离视角；对白更克制；避免解释性旁白；战斗场景保持短句和空间感。"
+                    ></textarea>
+                    <span class="mt-2 block text-xs leading-6 text-slate-500">
+                      这里适合写这本书专属的视角、节奏、禁用表达和额外要求。
+                    </span>
+                  </label>
+                </div>
+                <div class="mt-4 flex flex-wrap gap-3">
+                  <button class="bamboo-btn-secondary" id="settings-book-style-rebuild" type="button">按当前选择重建下方写作要求</button>
+                  <button class="bamboo-btn-ghost" id="settings-book-style-clear" type="button">清空预设与自定义</button>
+                </div>
+                <div class="mt-3 text-sm leading-7 text-slate-500" id="settings-book-style-preset-summary"></div>
+              </div>
+              <label class="block">
+                <span class="bamboo-mini-label">最终写作要求</span>
+                <textarea
+                  class="bamboo-field mt-2 min-h-[12rem] resize-y"
+                  id="settings-book-style"
+                  placeholder="这里会根据上方预设与自定义生成，也可以继续手动修改。保存时会以这里的内容为准。"
+                ></textarea>
+              </label>
+              <div class="rounded-[1.25rem] bg-bamboo-mist/55 p-4">
+                <div class="flex flex-wrap items-center justify-between gap-3">
+                  <div>
+                    <div class="bamboo-mini-label">自动总结文风</div>
+                    <p class="mt-2 text-sm leading-7 text-slate-500">
+                      这里会随着章节更新自动总结当前正文里已经形成的文风，只作为候选参考，不会直接参与写作。你可以手动复制到上方“最终写作要求”。
+                    </p>
+                  </div>
+                  <button class="bamboo-btn-secondary" id="settings-book-style-derived-copy" type="button">复制到最终写作要求</button>
+                </div>
+                <textarea
+                  class="bamboo-field mt-4 min-h-[10rem] resize-y"
+                  id="settings-book-style-derived"
+                  placeholder="章节变多后，这里会自动出现系统总结的文风候选。"
+                  readonly
+                ></textarea>
+                <div class="mt-2 text-xs leading-6 text-slate-500" id="settings-book-style-derived-meta">暂无自动总结文风。</div>
+              </div>
+              <textarea class="bamboo-field min-h-[10rem] resize-y" id="settings-book-summary" placeholder="长期摘要：概括前文主线、伏笔、人物阶段变化"></textarea>
+              <textarea class="bamboo-field min-h-[12rem] resize-y" id="settings-book-world" placeholder="世界观手册：势力、地点、规则、禁忌、时间线"></textarea>
+              <button class="bamboo-btn-primary" type="submit">保存书籍写作记忆</button>
+            </form>
+
+            <div class="mt-6 rounded-[1.25rem] bg-white/75 p-4">
+              <div class="bamboo-mini-label">项目导入导出</div>
+              <p class="mt-2 text-sm leading-7 text-slate-500">
+                导出时会把当前书籍的项目信息、提示词、书籍级 AI 配置、正文、人物卡、人物关系打包成一个 ZIP。
+                导入时支持只导回压缩包里实际存在的模块。
+              </p>
+              <div class="mt-4 flex flex-wrap gap-3">
+                <button class="bamboo-btn-secondary" id="settings-project-export" type="button">导出当前书籍 ZIP</button>
+              </div>
+              <div class="mt-4 grid gap-3 md:grid-cols-[minmax(0,1fr)_200px_auto]">
+                <input accept=".zip" class="bamboo-field" id="settings-project-import-file" type="file" />
+                <select class="bamboo-field" id="settings-project-import-strategy">
+                  <option value="smart_merge" selected>智能合并（推荐）</option>
+                  <option value="keep_existing">保留系统现有内容</option>
+                  <option value="replace_existing">以压缩包内容覆盖</option>
+                </select>
+                <button class="bamboo-btn-primary" id="settings-project-import" type="button">导入 ZIP</button>
+              </div>
+              <div class="mt-3 text-sm text-slate-500" id="settings-project-import-note">未选择 ZIP 压缩包。</div>
+              <div class="mt-4 whitespace-pre-line rounded-[1rem] bg-bamboo-mist/55 p-4 text-sm leading-7 text-slate-500" id="settings-project-import-result">
+                这里会显示本次导入导出的结果摘要。
+              </div>
+            </div>
+
+            <div class="mt-6 rounded-[1.25rem] bg-bamboo-mist/55 p-4">
+              <div class="bamboo-mini-label">界面动效</div>
+              <label class="mt-4 flex items-center gap-3 text-sm text-slate-600">
+                <input checked id="settings-writer-generation-effect" type="checkbox" />
+                <span>开启 AI 生成全屏竹叶特效</span>
+              </label>
+              <p class="mt-3 text-sm leading-7 text-slate-500">
+                开启后，写作页点击“开始生成”会播放全屏竹叶动效；关闭后只保留常规状态提示。这个选项保存在当前浏览器，切换后立即生效。
+              </p>
+            </div>
+          </div>
+
+          <div class="bamboo-panel p-6">
+            <div class="flex items-center justify-between gap-4">
+              <div>
+                <div class="bamboo-mini-label">模型配置</div>
+                <h3 class="mt-2 text-2xl font-semibold text-bamboo-deep">已保存的模型与 API 配置</h3>
+              </div>
+              <button class="bamboo-btn-secondary" id="config-reset" type="button">清空表单</button>
+            </div>
+            <div class="mt-6 space-y-4" id="settings-ai-configs"></div>
+          </div>
+        </div>
+
+        <aside class="space-y-6">
+          <div class="bamboo-panel p-6">
+            <div class="bamboo-mini-label" id="config-form-title">新增模型配置</div>
+            <form class="mt-5 space-y-4" id="config-form">
+              <div class="rounded-[1.25rem] bg-bamboo-mist/55 p-4">
+                <div class="bamboo-mini-label">模型配置说明</div>
+                <p class="mt-2 text-sm leading-7 text-slate-500">
+                  先填写下方 API 接口地址和 API Key，再获取模型列表或直接手填模型名称。
+                </p>
+              </div>
+
+              <label class="block">
+                <span class="bamboo-mini-label">配置名称</span>
+                <input class="bamboo-field mt-2" id="config-name" placeholder="例如：默认正文模型" required />
+              </label>
+
+              <label class="block">
+                <span class="bamboo-mini-label">生效范围</span>
+                <select class="bamboo-field mt-2" id="config-scope"></select>
+              </label>
+
+              <label class="block">
+                <span class="bamboo-mini-label">用途</span>
+                <select class="bamboo-field mt-2" id="config-module"></select>
+              </label>
+
+              <label class="block">
+                <span class="bamboo-mini-label">服务商备注</span>
+                <input class="bamboo-field mt-2" id="config-provider" placeholder="选填，例如：OpenAI / DeepSeek / 自建中转" />
+              </label>
+
+              <div class="space-y-4 rounded-[1.25rem] bg-bamboo-mist/55 p-4">
+                <div>
+                  <div class="bamboo-mini-label">API 配置</div>
+                  <p class="mt-2 text-sm leading-7 text-slate-500">
+                    这里填写模型服务商的接口信息。支持 OpenAI 兼容接口，例如 OpenAI、DeepSeek、硅基流动或自建中转。
+                  </p>
+                </div>
+
+                <label class="block">
+                  <span class="bamboo-mini-label">接口地址</span>
+                  <input class="bamboo-field mt-2" id="config-base-url" placeholder="例如：https://api.openai.com/v1" />
+                </label>
+
+                <label class="block">
+                  <span class="bamboo-mini-label">API Key</span>
+                  <div class="mt-2 flex gap-2">
+                    <input
+                      class="bamboo-field flex-1"
+                      id="config-api-key"
+                      type="password"
+                      placeholder="新增时请填写 API Key；编辑已有配置时留空表示不修改"
+                    />
+                    <button class="bamboo-btn-secondary shrink-0 px-4 py-2 text-sm" id="config-toggle-api-key" type="button">显示</button>
+                  </div>
+                  <div class="mt-2 text-xs leading-6 text-slate-500" id="config-api-key-note">
+                    API Key 会加密保存。编辑已有配置时，如果不想改动当前 Key，可以保持为空。
+                  </div>
+                </label>
+              </div>
+
+              <div class="space-y-4 rounded-[1.25rem] bg-white/70 p-4">
+                <div>
+                  <div class="bamboo-mini-label">模型配置</div>
+                  <p class="mt-2 text-sm leading-7 text-slate-500">
+                    API 可用后，系统会读取模型列表。若服务商不提供模型列表，也可以直接手填模型名称。
+                  </p>
+                </div>
+
+                <label class="block">
+                  <div class="flex items-center justify-between gap-3">
+                    <span class="bamboo-mini-label">模型名称</span>
+                    <div class="flex gap-2">
+                      <button class="bamboo-btn-secondary px-4 py-2 text-sm" id="config-refresh-models" type="button">获取模型列表</button>
+                      <button class="bamboo-btn-secondary px-4 py-2 text-sm" id="config-test-connection" type="button">测试连接</button>
+                    </div>
+                  </div>
+                  <select class="bamboo-field mt-2" id="config-model-name"></select>
+                  <input
+                    class="bamboo-field mt-2 hidden"
+                    id="config-model-name-manual"
+                    placeholder="如果服务商没有返回模型列表，可在这里直接填写模型名称"
+                  />
+                  <div class="mt-2 text-xs leading-6 text-slate-500" id="config-model-hint">
+                    填写接口地址后，系统会自动读取模型列表。若服务商不提供模型列表，也可以直接手填模型名称。
+                  </div>
+                </label>
+
+                <label class="block">
+                  <span class="bamboo-mini-label">思考强度</span>
+                  <input class="bamboo-field mt-2" id="config-reasoning" placeholder="可选，例如：low / medium / high" />
+                </label>
+
+                <div class="grid gap-4 md:grid-cols-2">
+                  <label class="block">
+                    <span class="bamboo-mini-label">超时时间（秒）</span>
+                    <input class="bamboo-field mt-2" id="config-timeout" type="number" value="120" />
+                  </label>
+                  <label class="block">
+                    <span class="bamboo-mini-label">优先级</span>
+                    <input class="bamboo-field mt-2" id="config-priority" type="number" value="100" />
+                  </label>
+                </div>
+              </div>
+
+              <label class="block">
+                <span class="bamboo-mini-label">固定写作要求模板</span>
+                <textarea class="bamboo-field mt-2 min-h-[8rem] resize-y" id="config-system-prompt" placeholder="可选。适合放固定语气、禁忌、输出格式要求。"></textarea>
+              </label>
+
+              <label class="block">
+                <span class="bamboo-mini-label">备注</span>
+                <textarea class="bamboo-field mt-2 min-h-[6rem] resize-y" id="config-notes" placeholder="可记录该配置适合的场景、成本、稳定性。"></textarea>
+              </label>
+
+              <label class="flex items-center gap-3 text-sm text-slate-600">
+                <input checked id="config-enabled" type="checkbox" />
+                <span>启用这条配置</span>
+              </label>
+
+              <label class="flex items-center gap-3 text-sm text-slate-600">
+                <input id="config-default" type="checkbox" />
+                <span>设为当前范围的默认配置</span>
+              </label>
+
+              <label class="flex items-center gap-3 text-sm text-slate-600">
+                <input id="config-clear-api-key" type="checkbox" />
+                <span>清空当前已保存的 API Key</span>
+              </label>
+
+              <button class="bamboo-btn-primary w-full" type="submit">保存模型配置</button>
+            </form>
+          </div>
+
+          <div class="bamboo-panel p-6">
+            <div class="bamboo-mini-label">修改密码</div>
+            <form class="mt-5 space-y-4" id="change-password-form">
+              <input class="bamboo-field" id="change-old-password" placeholder="当前密码" required type="password" />
+              <input class="bamboo-field" id="change-new-password" placeholder="新密码（至少 6 位）" required type="password" minlength="6" />
+              <input class="bamboo-field" id="change-new-password-confirm" placeholder="确认新密码" required type="password" minlength="6" />
+              <button class="bamboo-btn-secondary w-full" type="submit">修改密码</button>
+            </form>
+          </div>
+
+          <div class="bamboo-panel p-6">
+            <div class="bamboo-mini-label">生效规则</div>
+            <ul class="mt-4 space-y-3 text-sm leading-7 text-slate-500">
+              <li>1. 当前书籍配置优先于当前账号配置。</li>
+              <li>2. 当前账号配置优先于全局通用配置。</li>
+              <li>3. 不同用途可以分别绑定不同模型，例如正文续写和摘要整理可以分开设置。</li>
+              <li>4. 填写接口地址后，系统会自动读取可用模型；需要时也可以手动刷新或测试连接。</li>
+            </ul>
+          </div>
+        </aside>
+      </section>
+
+      <div class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-950/45 px-4 py-8" id="settings-project-import-modal">
+        <div class="max-h-[90vh] w-full max-w-6xl overflow-hidden rounded-[2rem] bg-[#f8f4ec] shadow-2xl">
+          <div class="flex items-center justify-between border-b border-slate-200/80 px-6 py-5">
+            <div>
+              <div class="bamboo-mini-label">项目导入预览</div>
+              <h3 class="mt-2 text-2xl font-semibold text-bamboo-deep">逐项确认导入策略</h3>
+            </div>
+            <button class="bamboo-btn-ghost px-4 py-2 text-sm" id="settings-project-import-modal-close" type="button">关闭</button>
+          </div>
+          <div class="max-h-[calc(90vh-10rem)] overflow-y-auto px-6 py-5">
+            <div class="whitespace-pre-line rounded-[1.2rem] bg-white/80 p-4 text-sm leading-7 text-slate-500 shadow-cloud" id="settings-project-import-modal-summary">
+              这里会显示导入预览结果。
+            </div>
+            <div class="mt-5 space-y-4" id="settings-project-import-modal-list"></div>
+          </div>
+          <div class="flex flex-wrap items-center justify-end gap-3 border-t border-slate-200/80 px-6 py-5">
+            <button class="bamboo-btn-ghost" id="settings-project-import-modal-cancel" type="button">取消</button>
+            <button class="bamboo-btn-primary" id="settings-project-import-modal-apply" type="button">确认导入</button>
+          </div>
+        </div>
+      </div>
+    </template>
+    <script type="module" src="/static/js/app.js"></script>
+  </body>
+</html>

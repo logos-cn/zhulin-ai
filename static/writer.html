@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>竹林 AI | 核心写作空间</title>
+    <script src="/static/js/tailwind-config.js"></script>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,typography"></script>
+    <link rel="stylesheet" href="/static/css/bamboo.css" />
+  </head>
+  <body data-page="writer" data-protected="true">
+    <template id="page-template">
+      <section class="grid gap-6 xl:grid-cols-[280px_minmax(0,1fr)_360px]">
+        <aside class="space-y-6">
+          <div class="bamboo-panel p-5">
+            <label class="bamboo-mini-label" for="writer-book-select">当前书籍</label>
+            <select class="bamboo-field mt-3" id="writer-book-select"></select>
+          </div>
+
+          <div class="bamboo-panel p-5">
+            <div class="bamboo-mini-label">章节树</div>
+            <div class="mt-4 max-h-[60vh] space-y-3 overflow-y-auto pr-1" id="writer-tree"></div>
+          </div>
+
+          <div class="bamboo-panel p-5">
+            <div class="bamboo-mini-label">新增章节</div>
+            <form class="mt-4 space-y-3" id="writer-create-chapter-form">
+              <input class="bamboo-field" id="writer-new-chapter" placeholder="例如：第一章 山门夜雨" />
+              <button class="bamboo-btn-primary w-full" id="writer-create-chapter" type="submit">创建章节</button>
+            </form>
+          </div>
+        </aside>
+
+        <div class="space-y-6">
+          <div class="bamboo-panel hidden p-6 text-sm text-slate-500" id="writer-empty">当前书籍还没有章节，请先创建一章。</div>
+
+          <div class="bamboo-panel hidden p-6" id="writer-editor-pane">
+            <div class="flex flex-col gap-4 xl:flex-row xl:items-start xl:justify-between">
+              <div class="min-w-0 flex-1">
+                <div class="bamboo-chip" id="writer-book"></div>
+                <input class="bamboo-field bamboo-display mt-4 text-3xl font-semibold text-bamboo-deep" id="writer-chapter" />
+              </div>
+              <div class="flex flex-wrap gap-3" id="writer-meta"></div>
+            </div>
+
+            <textarea class="bamboo-field mt-6 min-h-[8rem] resize-y bg-white/88" id="writer-summary" placeholder="章节摘要"></textarea>
+            <textarea class="bamboo-field mt-4 min-h-[10rem] resize-y bg-white/88" id="writer-outline" placeholder="章节大纲"></textarea>
+            <textarea class="bamboo-field bamboo-editor mt-4 min-h-[26rem] resize-y bg-white/86" id="writer-editor" placeholder="正文"></textarea>
+
+            <div class="mt-6 flex flex-wrap gap-3">
+              <button class="bamboo-btn-secondary" id="writer-save" type="button">保存章节</button>
+              <button class="bamboo-btn-ghost text-rose-600" id="writer-delete" type="button">删除章节</button>
+            </div>
+          </div>
+
+          <div class="grid gap-4 md:grid-cols-3" id="writer-memory"></div>
+        </div>
+
+        <aside class="space-y-6">
+          <div class="bamboo-panel p-5">
+            <div class="bamboo-mini-label">AI 写作助手</div>
+            <div class="mt-4 space-y-3">
+              <label class="block">
+                <span class="bamboo-mini-label">用途</span>
+                <select class="bamboo-field mt-2" id="writer-module">
+                  <option value="co_writing">正文续写</option>
+                  <option selected value="outline_expansion">大纲扩写</option>
+                  <option value="summary">摘要整理</option>
+                </select>
+              </label>
+
+              <label class="block">
+                <span class="bamboo-mini-label">写入位置</span>
+                <select class="bamboo-field mt-2" id="writer-target-field">
+                  <option value="content">写入正文</option>
+                  <option value="outline">写入章节大纲</option>
+                  <option value="summary">写入章节摘要</option>
+                </select>
+              </label>
+
+              <label class="block">
+                <span class="bamboo-mini-label">写入方式</span>
+                <select class="bamboo-field mt-2" id="writer-apply-mode">
+                  <option value="append">接在后面</option>
+                  <option selected value="replace">直接覆盖</option>
+                </select>
+              </label>
+
+              <label class="block">
+                <span class="bamboo-mini-label">目标字数</span>
+                <input class="bamboo-field mt-2" id="writer-target-units" placeholder="默认 2000" type="number" value="2000" />
+              </label>
+
+              <label class="block">
+                <span class="bamboo-mini-label">单段生成字数</span>
+                <input class="bamboo-field mt-2" id="writer-chunk-size" placeholder="默认 900" type="number" value="900" />
+                <p class="mt-2 text-xs leading-6 text-slate-500">
+                  说明：这是 AI 每一轮单次生成时参考的字数，不是最终一定写这么多。系统会优先按“目标字数”控制总量，必要时把整次任务拆成多轮生成后再自动拼接。比如目标字数填 3000、这里填 800，通常会分成几轮来写；如果目标字数只有 800、这里填 900，一般也只会生成 1 轮。现在生成后会先弹出第一版草稿，由你决定是否直接插入，或继续二次扩写/精简。这个值越大，单次生成越长，但也更容易跑偏或重复，正文续写建议填 400 到 900。
+                </p>
+              </label>
+
+              <label class="block">
+                <span class="bamboo-mini-label">向前引用章节数</span>
+                <input class="bamboo-field mt-2" id="writer-previous-chapters" max="12" min="0" placeholder="默认 1" type="number" value="1" />
+                <p class="mt-2 text-xs leading-6 text-slate-500">
+                  生成时发给 AI 的上文章节数量。数值越大，剧情上下文越完整，但也会增加 token 消耗。普通续写建议 2 到 4 章。
+                </p>
+              </label>
+
+              <label class="block">
+                <span class="bamboo-mini-label">补充要求</span>
+                <textarea class="bamboo-field mt-2 min-h-[8rem] resize-y" id="writer-prompt" placeholder="告诉 AI 这次要强调什么，例如语气、节奏、冲突点、情绪变化。"></textarea>
+              </label>
+
+              <label class="flex items-center gap-3 text-sm text-slate-600">
+                <input checked id="writer-use-reasoner" type="checkbox" />
+                <span>先做写前规划，再开始生成</span>
+              </label>
+
+              <div class="flex gap-3">
+                <button class="bamboo-btn-secondary flex-1" id="writer-preview" type="button">预览上下文</button>
+                <button class="bamboo-btn-primary flex-1" id="writer-generate" type="button">开始生成</button>
+              </div>
+
+              <div class="rounded-2xl bg-white/80 px-4 py-3 text-sm leading-7 text-slate-500" id="writer-action-status">
+                填写补充要求后，可先预览上下文，再开始生成。
+              </div>
+            </div>
+          </div>
+
+          <div class="bamboo-panel p-5">
+            <div class="bamboo-mini-label">上下文预览</div>
+            <div class="mt-4 space-y-4 text-sm text-slate-500" id="writer-context-preview">先选择章节，再预览本次写作会带上的上下文。</div>
+          </div>
+
+          <div class="bamboo-panel p-5">
+            <div class="bamboo-mini-label">当前可用的 AI 功能配置</div>
+            <div class="mt-4 space-y-4" id="writer-ai-configs"></div>
+          </div>
+
+          <div class="bamboo-panel p-5">
+            <div class="flex items-center justify-between gap-3">
+              <div class="bamboo-mini-label">章节快照</div>
+              <a class="text-sm text-bamboo-moss" href="/history">版本页</a>
+            </div>
+            <div class="mt-4 space-y-4" id="writer-snapshots"></div>
+          </div>
+        </aside>
+      </section>
+
+      <div
+        class="fixed inset-0 z-[90] hidden items-center justify-center overflow-hidden px-4 py-6"
+        id="writer-generation-fx"
+        aria-hidden="true"
+        data-phase="idle"
+      >
+        <div class="bamboo-writing-fx-backdrop"></div>
+        <div class="bamboo-writing-fx-aura"></div>
+        <div class="bamboo-writing-fx-grain"></div>
+        <div class="bamboo-writing-fx-leaves" id="writer-generation-fx-leaves"></div>
+        <div class="bamboo-writing-fx-stream" id="writer-generation-fx-stream" aria-hidden="true">
+          <div class="bamboo-writing-fx-stream-glow"></div>
+          <div class="bamboo-writing-fx-stream-viewport" id="writer-generation-fx-stream-viewport">
+            <pre class="bamboo-writing-fx-stream-wall" id="writer-generation-fx-stream-wall"></pre>
+          </div>
+        </div>
+        <div class="bamboo-writing-fx-copy" id="writer-generation-fx-copy">
+          <div class="bamboo-writing-fx-copy-line"></div>
+          <div class="bamboo-writing-fx-copy-text" id="writer-generation-fx-text">“竹林”正在谱写</div>
+          <div class="bamboo-writing-fx-copy-subtext" id="writer-generation-fx-subtext">风入青篁，文意渐起</div>
+        </div>
+      </div>
+
+      <div class="fixed inset-0 z-[95] hidden items-center justify-center bg-slate-950/50 px-4 py-6" id="writer-confirm-modal">
+        <div class="flex max-h-[92vh] w-full max-w-6xl flex-col overflow-hidden rounded-[2rem] bg-[#f7f3ea] shadow-2xl ring-1 ring-black/5">
+          <div class="shrink-0 flex items-center justify-between gap-4 border-b border-slate-200/80 px-6 py-5">
+            <div>
+              <div class="bamboo-mini-label">提交给 AI 前确认</div>
+              <div class="mt-2 text-xl font-semibold text-bamboo-deep">请核对本次真正发给 AI 的提示词</div>
+            </div>
+            <button class="bamboo-btn-secondary" id="writer-confirm-close" type="button">关闭</button>
+          </div>
+          <div class="grid flex-1 gap-6 overflow-y-auto px-6 py-6 lg:grid-cols-[18rem,minmax(0,1fr),minmax(0,1fr)]">
+            <aside class="space-y-4">
+              <div class="rounded-[1.2rem] bg-white/88 p-4 shadow-cloud">
+                <div class="bamboo-mini-label">本次设置</div>
+                <div class="mt-4 space-y-3 text-sm leading-7 text-slate-600" id="writer-confirm-meta"></div>
+              </div>
+              <div class="rounded-[1.2rem] bg-white/88 p-4 text-sm leading-7 text-slate-500 shadow-cloud" id="writer-confirm-tip">
+                这个窗口展示的是最终提交给 AI 的 system prompt 和 user prompt。确认无误后，再点击“开始谱写”。
+              </div>
+            </aside>
+            <section class="space-y-3">
+              <div class="bamboo-mini-label">System Prompt</div>
+              <textarea class="bamboo-field min-h-[26rem] resize-y bg-white/88 text-sm leading-7" id="writer-confirm-system" readonly></textarea>
+            </section>
+            <section class="space-y-3">
+              <div class="bamboo-mini-label">User Prompt</div>
+              <textarea class="bamboo-field min-h-[26rem] resize-y bg-white/88 text-sm leading-7" id="writer-confirm-user" readonly></textarea>
+            </section>
+          </div>
+          <div class="shrink-0 flex flex-wrap items-center justify-between gap-4 border-t border-slate-200/80 px-6 py-5">
+            <div class="text-sm text-slate-500" id="writer-confirm-status">提交前建议先对提示词做最后一次目视核对。</div>
+            <div class="flex flex-wrap gap-3">
+              <button class="bamboo-btn-secondary" id="writer-confirm-back" type="button">返回修改</button>
+              <button class="bamboo-btn-primary" id="writer-confirm-submit" type="button">开始谱写</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-950/55 px-4 py-6" id="writer-draft-modal">
+        <div class="flex max-h-[92vh] w-full max-w-5xl flex-col overflow-hidden rounded-[2rem] bg-[#f7f3ea] shadow-2xl ring-1 ring-black/5">
+          <div class="shrink-0 flex items-center justify-between gap-4 border-b border-slate-200/80 px-6 py-5">
+            <div>
+              <div class="bamboo-mini-label">AI 续写草稿</div>
+              <div class="mt-2 text-sm leading-6 text-slate-500" id="writer-draft-meta">正在准备草稿...</div>
+            </div>
+            <button class="rounded-full px-3 py-2 text-sm text-slate-500 transition hover:bg-white/80" id="writer-draft-close" type="button">关闭</button>
+          </div>
+
+          <div class="min-h-0 flex-1 space-y-4 overflow-y-auto px-6 py-5">
+            <div class="rounded-2xl bg-white/88 px-4 py-3 text-sm leading-7 text-slate-500" id="writer-draft-status">
+              先查看 AI 第一版草稿，再决定是否直接插入正文，或继续二次扩写/精简。
+            </div>
+            <textarea class="bamboo-field min-h-[26rem] resize-y bg-white/92 text-sm leading-8" id="writer-draft-editor" placeholder="AI 生成的第一版草稿会显示在这里。"></textarea>
+            <p class="text-xs leading-6 text-slate-500">
+              这里展示的是 AI 第一版输出。你可以直接插入正文，也可以先做二次扩写或精简；如果愿意，也可以先手动微调这里的内容，再插入正文。
+            </p>
+          </div>
+
+          <div class="shrink-0 flex flex-wrap items-center justify-between gap-3 border-t border-slate-200/80 bg-[#f7f3ea] px-6 py-5">
+            <div class="text-xs leading-6 text-slate-500" id="writer-draft-hint">当前草稿可直接审阅。</div>
+            <div class="flex flex-wrap gap-3">
+              <button class="bamboo-btn-secondary hidden" id="writer-draft-refine" type="button">二次调整</button>
+              <button class="bamboo-btn-primary" id="writer-draft-apply" type="button">直接插入正文</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </template>
+    <script type="module" src="/static/js/app.js"></script>
+  </body>
+</html>

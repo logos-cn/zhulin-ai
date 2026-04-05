@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>竹林 AI | 历史版本对比</title>
+    <script src="/static/js/tailwind-config.js"></script>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,typography"></script>
+    <link rel="stylesheet" href="/static/css/bamboo.css" />
+  </head>
+  <body data-page="history" data-protected="true">
+    <template id="page-template">
+      <section class="grid gap-6 xl:grid-cols-[320px_minmax(0,1fr)]">
+        <aside class="space-y-4">
+          <div class="bamboo-panel p-5">
+            <div class="bamboo-mini-label">当前书籍</div>
+            <select class="bamboo-field mt-3" id="history-book-select"></select>
+          </div>
+          <div class="space-y-4" id="history-list"></div>
+        </aside>
+        <div class="space-y-6">
+          <div class="bamboo-panel p-6">
+            <div id="history-header"></div>
+            <div class="mt-6 grid gap-4 md:grid-cols-3" id="history-metrics"></div>
+          </div>
+          <div class="grid gap-6 xl:grid-cols-2">
+            <article class="bamboo-panel p-6" id="history-before"></article>
+            <article class="bamboo-panel p-6" id="history-after"></article>
+          </div>
+        </div>
+      </section>
+    </template>
+    <script type="module" src="/static/js/app.js"></script>
+  </body>
+</html>

@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>竹林 AI | 世界观与关系网</title>
+    <script src="/static/js/tailwind-config.js"></script>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,typography"></script>
+    <link rel="stylesheet" href="/static/css/bamboo.css" />
+  </head>
+  <body data-page="world" data-protected="true">
+    <template id="page-template">
+      <section class="grid gap-6 xl:grid-cols-[minmax(0,1.45fr)_360px]">
+        <div class="space-y-6">
+          <div class="bamboo-panel p-6">
+            <div class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
+              <div>
+                <div class="bamboo-mini-label">Relation Map</div>
+                <h2 class="bamboo-display mt-2 text-3xl font-semibold text-bamboo-deep">关系图谱</h2>
+              </div>
+              <div class="flex flex-col gap-3 md:flex-row">
+                <select class="bamboo-field min-w-[12rem]" id="world-book-select"></select>
+                <select class="bamboo-field min-w-[12rem]" id="world-chapter-select"></select>
+              </div>
+            </div>
+
+            <div class="mt-4 flex flex-col gap-3">
+              <label class="flex items-center gap-3 text-sm text-slate-600">
+                <input checked id="world-update-bible" type="checkbox" />
+                <span>将提取到的设定事实追加到世界观手册</span>
+              </label>
+              <label class="flex items-center gap-3 text-sm text-slate-600">
+                <input checked id="world-batch-content-only" type="checkbox" />
+                <span>批量提取时仅处理有正文 / 大纲 / 摘要的章节</span>
+              </label>
+              <label class="block text-sm text-slate-600">
+                <span class="mb-2 block">冲突处理方式</span>
+                <select class="bamboo-field" id="world-conflict-strategy">
+                  <option value="manual_review" selected>逐条确认（推荐）</option>
+                  <option value="merge">智能合并</option>
+                  <option value="keep_existing">保留软件内人物卡和关系</option>
+                  <option value="prefer_imported">以原著导入内容覆盖</option>
+                </select>
+              </label>
+              <div class="rounded-[1rem] bg-white/70 p-4">
+                <div class="bamboo-mini-label">外部原著导入</div>
+                <p class="mt-2 text-sm leading-7 text-slate-500">
+                  支持 TXT / DOCX / PDF。系统会自动分段后台处理，适合超长原著与大体量关系抽取。
+                </p>
+                <input accept=".txt,.docx,.pdf" class="bamboo-field mt-3" id="world-import-file" type="file" />
+                <div class="mt-2 text-sm text-slate-500" id="world-import-file-note">未选择文件。旧版 .doc 需要先另存为 .docx。</div>
+                <div class="mt-3 hidden rounded-[0.9rem] bg-[#f3efe4] p-4 text-sm text-slate-600" id="world-import-estimate"></div>
+              </div>
+              <div class="flex flex-wrap gap-3">
+                <button class="bamboo-btn-primary" id="world-extract" type="button">AI 提取当前章节</button>
+                <button class="bamboo-btn-secondary" id="world-extract-batch" type="button">提取软件内全书</button>
+                <button class="bamboo-btn-secondary" id="world-import-extract" type="button">导入原著并提取</button>
+              </div>
+            </div>
+
+            <div class="mt-4 rounded-[1rem] bg-white/70 p-4 text-sm text-slate-500" id="world-extract-result">
+              选择章节后可一键提取人物、关系与设定事实，也可后台处理整本书或导入外部原著。
+            </div>
+
+            <div class="mt-4 rounded-[1rem] bg-white/70 p-4">
+              <div class="bamboo-mini-label">后台提取任务</div>
+              <div class="mt-3 max-h-[24rem] space-y-3 overflow-y-auto pr-1" id="world-jobs">
+                <div class="text-sm text-slate-500">还没有后台提取任务。</div>
+              </div>
+            </div>
+
+            <div class="bamboo-graph-panel" id="world-graph-panel">
+            <div class="mt-4 flex flex-wrap items-center justify-between gap-3">
+              <div class="space-y-1">
+                <div class="text-sm text-slate-500" id="world-visibility-note">默认只显示主要人物。</div>
+                <div class="text-xs uppercase tracking-[0.16em] text-slate-400" id="world-graph-summary">等待载入人物关系图</div>
+              </div>
+              <div class="flex flex-wrap gap-3">
+                <button class="bamboo-btn-secondary px-4 py-2 text-sm" id="world-toggle-minor" type="button">显示次要人物</button>
+                <button class="bamboo-btn-secondary px-4 py-2 text-sm" id="world-reset-graph" type="button">重置视图</button>
+              </div>
+            </div>
+            <div class="mt-4 rounded-[1rem] bg-white/72 p-4">
+              <div class="flex flex-wrap items-center justify-between gap-3">
+                <div>
+                  <div class="bamboo-mini-label">关系筛选</div>
+                  <div class="mt-2 text-xs leading-6 text-slate-500" id="world-relation-filter-summary">按类别和关系词勾选显示，箭头从关系发起方指向承受方。</div>
+                </div>
+                <button class="bamboo-btn-secondary px-3 py-2 text-xs" id="world-toggle-relation-filters" type="button">展开筛选</button>
+              </div>
+              <div class="mt-3 hidden space-y-3" id="world-relation-filters"></div>
+            </div>
+            <div class="bamboo-graph mt-6" id="world-graph"></div>
+            </div>
+          </div>
+
+          <div class="bamboo-panel hidden p-6">
+            <div class="flex items-center justify-between gap-3">
+              <div class="bamboo-mini-label">人物卡</div>
+              <button class="bamboo-btn-ghost px-4 py-2 text-sm text-rose-600" id="world-delete-all-characters" type="button">一键删除所有人物卡</button>
+            </div>
+            <div class="mt-5 grid gap-4 md:grid-cols-2" id="world-characters"></div>
+          </div>
+        </div>
+
+        <aside class="space-y-6">
+          <div class="bamboo-panel hidden p-6">
+            <div class="bamboo-mini-label" id="character-form-title">新增人物</div>
+            <form class="mt-5 space-y-4" id="character-form">
+              <input class="bamboo-field" id="character-name" placeholder="人物名" required />
+              <input class="bamboo-field" id="character-role" placeholder="角色标签，如主角 / 导师" />
+              <label class="block">
+                <span class="bamboo-mini-label">人物重要度</span>
+                <select class="bamboo-field mt-2" id="character-importance">
+                  <option value="">自动判断</option>
+                  <option value="major">主要人物</option>
+                  <option value="minor">次要人物</option>
+                </select>
+              </label>
+              <textarea class="bamboo-field min-h-[10rem] resize-y" id="character-biography" placeholder="人物小传。可不限字数，建议写清身份、经历、性格底色、关系脉络与当前处境。"></textarea>
+              <div>
+                <div class="bamboo-mini-label">生命状态</div>
+                <div class="mt-3 grid gap-2 sm:grid-cols-2" id="character-life-statuses">
+                  <label class="bamboo-choice-chip">
+                    <input data-life-status="alive" type="checkbox" />
+                    <span>活着</span>
+                  </label>
+                  <label class="bamboo-choice-chip">
+                    <input data-life-status="dead" type="checkbox" />
+                    <span>死亡</span>
+                  </label>
+                  <label class="bamboo-choice-chip">
+                    <input data-life-status="serious_injury" type="checkbox" />
+                    <span>重伤</span>
+                  </label>
+                  <label class="bamboo-choice-chip">
+                    <input data-life-status="minor_injury" type="checkbox" />
+                    <span>轻伤</span>
+                  </label>
+                  <label class="bamboo-choice-chip sm:col-span-2">
+                    <input data-life-status="disabled" type="checkbox" />
+                    <span>残疾</span>
+                  </label>
+                </div>
+                <div class="mt-2 text-xs leading-6 text-slate-500">可多选。若勾选“死亡”，人物卡与图谱节点会自动灰显。</div>
+              </div>
+              <div class="space-y-3">
+                <div class="flex items-center justify-between gap-3">
+                  <div>
+                    <div class="bamboo-mini-label">章节时间节点</div>
+                    <div class="mt-1 text-xs leading-6 text-slate-500">记录这个人物在第几章做了什么、人在何处、处于什么状态，续写时会优先参考这里。</div>
+                  </div>
+                  <button class="bamboo-btn-secondary px-4 py-2 text-sm" id="character-timeline-manage" type="button">管理时间节点</button>
+                </div>
+                <div class="space-y-3" id="character-timeline-preview"></div>
+              </div>
+              <div class="flex gap-3">
+                <button class="bamboo-btn-primary flex-1" type="submit">保存人物</button>
+                <button class="bamboo-btn-secondary" id="character-reset" type="button">清空</button>
+              </div>
+            </form>
+          </div>
+
+          <div class="bamboo-panel p-6">
+            <div class="bamboo-mini-label" id="relation-form-title">新增关系</div>
+            <form class="mt-5 space-y-4" id="relation-form">
+              <select class="bamboo-field" id="relation-source"></select>
+              <select class="bamboo-field" id="relation-target"></select>
+              <select class="bamboo-field" id="relation-type" required>
+                <option value="affinity">友好 / 合作</option>
+                <option value="kinship">亲属 / 婚姻</option>
+                <option value="hostility">敌对 / 防备</option>
+                <option value="authority">师承 / 上下级</option>
+                <option value="other">其他</option>
+              </select>
+              <input class="bamboo-field" id="relation-label" placeholder="关系标题" />
+              <textarea class="bamboo-field min-h-[6rem] resize-y" id="relation-description" placeholder="关系描述"></textarea>
+              <div class="text-xs uppercase tracking-[0.16em] text-slate-400">关系说明会自动压缩为简短说明，避免越积越长</div>
+              <input class="bamboo-field" id="relation-strength" max="1" min="0" placeholder="强度 0-1" step="0.1" type="number" />
+              <select class="bamboo-field" id="relation-importance">
+                <option value="core">核心关系</option>
+                <option selected value="major">主要关系</option>
+                <option value="minor">次要关系</option>
+                <option value="background">背景关系</option>
+              </select>
+              <label class="flex items-center gap-3 text-sm text-slate-600">
+                <input id="relation-bidirectional" type="checkbox" />
+                <span>双向关系</span>
+              </label>
+              <div class="flex gap-3">
+                <button class="bamboo-btn-primary flex-1" type="submit">保存关系</button>
+                <button class="bamboo-btn-secondary" id="relation-reset" type="button">清空</button>
+              </div>
+            </form>
+          </div>
+
+          <div class="bamboo-panel p-6">
+            <div class="flex items-center justify-between gap-3">
+              <div>
+                <div class="bamboo-mini-label">关系列表</div>
+                <div class="mt-2 text-xs uppercase tracking-[0.16em] text-slate-400">只显示短关系说明，详细内容点编辑查看</div>
+              </div>
+              <button class="bamboo-btn-ghost px-4 py-2 text-sm text-rose-600" id="world-delete-all-relations" type="button">一键删除所有关系</button>
+            </div>
+            <div class="mt-4 space-y-4" id="world-relations"></div>
+          </div>
+
+          <div class="bamboo-panel p-6">
+            <div class="flex items-center justify-between gap-3">
+              <div>
+                <div class="bamboo-mini-label">世界观事实</div>
+                <div class="mt-2 text-xs uppercase tracking-[0.16em] text-slate-400" id="world-facts-meta">等待载入世界观事实</div>
+              </div>
+              <div class="flex items-center gap-2">
+                <button class="bamboo-btn-ghost hidden px-4 py-2 text-sm text-rose-600" id="world-delete-all-facts" type="button">一键删除所有事实</button>
+                <button class="bamboo-btn-secondary hidden px-4 py-2 text-sm" id="world-toggle-facts" type="button">展开全部</button>
+              </div>
+            </div>
+            <ul class="mt-4 space-y-3" id="world-facts"></ul>
+          </div>
+
+          <div class="bamboo-panel p-6">
+            <div class="bamboo-mini-label" id="faction-form-title">新增阵营</div>
+            <form class="mt-5 space-y-4" id="faction-form">
+              <input class="bamboo-field" id="faction-name" placeholder="阵营名称，如东宫 / 神策府" required />
+              <textarea class="bamboo-field min-h-[6rem] resize-y" id="faction-description" placeholder="阵营说明"></textarea>
+              <label class="block text-sm text-slate-600">
+                <span class="mb-2 block">阵营颜色</span>
+                <input class="bamboo-field h-12" id="faction-color" type="color" value="#6b8d52" />
+              </label>
+              <div class="text-xs uppercase tracking-[0.16em] text-slate-400">成员请在“查看详情”中维护，可记录身份、忠诚度和加入/退出章节</div>
+              <div class="flex gap-3">
+                <button class="bamboo-btn-primary flex-1" type="submit">保存阵营</button>
+                <button class="bamboo-btn-secondary" id="faction-reset" type="button">清空</button>
+              </div>
+            </form>
+          </div>
+
+          <div class="bamboo-panel p-6">
+            <div class="flex items-center justify-between gap-3">
+              <div>
+                <div class="bamboo-mini-label">阵营与派系</div>
+                <div class="mt-2 text-xs uppercase tracking-[0.16em] text-slate-400">展示当前书籍中的持续性组织与成员</div>
+              </div>
+            </div>
+            <div class="mt-4 space-y-4" id="world-factions"></div>
+          </div>
+        </aside>
+      </section>
+      <div class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-950/45 px-4 py-8" id="world-conflict-modal">
+        <div class="max-h-[85vh] w-full max-w-5xl overflow-hidden rounded-[1.6rem] bg-[#f8f6ef] shadow-2xl">
+          <div class="flex items-center justify-between border-b border-slate-200/80 px-6 py-4">
+            <div>
+              <div class="bamboo-mini-label">冲突确认</div>
+              <h3 class="mt-2 text-xl font-semibold text-bamboo-deep" id="world-conflict-title">待确认冲突</h3>
+            </div>
+            <button class="bamboo-btn-secondary" id="world-conflict-close" type="button">关闭</button>
+          </div>
+          <div class="max-h-[calc(85vh-88px)] overflow-y-auto px-6 py-5" id="world-conflict-body"></div>
+        </div>
+      </div>
+      <div class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-950/45 px-4 py-8" id="world-detail-modal">
+        <div class="max-h-[85vh] w-full max-w-4xl overflow-hidden rounded-[1.6rem] bg-[#f8f6ef] shadow-2xl">
+          <div class="flex items-center justify-between border-b border-slate-200/80 px-6 py-4">
+            <div>
+              <div class="bamboo-mini-label">世界详情</div>
+              <h3 class="mt-2 text-xl font-semibold text-bamboo-deep" id="world-detail-title">详情</h3>
+              <div class="mt-1 text-sm text-slate-500" id="world-detail-subtitle"></div>
+            </div>
+            <button class="bamboo-btn-secondary" id="world-detail-close" type="button">关闭</button>
+          </div>
+          <div class="max-h-[calc(85vh-110px)] overflow-y-auto px-6 py-5" id="world-detail-body"></div>
+        </div>
+      </div>
+      <div class="fixed inset-0 z-50 hidden items-center justify-center bg-slate-950/45 px-4 py-8" id="character-timeline-modal">
+        <div class="max-h-[85vh] w-full max-w-4xl overflow-hidden rounded-[1.6rem] bg-[#f8f6ef] shadow-2xl">
+          <div class="flex items-center justify-between border-b border-slate-200/80 px-6 py-4">
+            <div>
+              <div class="bamboo-mini-label">章节时间节点</div>
+              <h3 class="mt-2 text-xl font-semibold text-bamboo-deep">管理人物时间线</h3>
+            </div>
+            <button class="bamboo-btn-secondary" id="character-timeline-close" type="button">关闭</button>
+          </div>
+          <div class="max-h-[calc(85vh-160px)] overflow-y-auto px-6 py-5">
+            <div class="mb-4 flex items-center justify-between gap-3">
+              <div class="text-sm text-slate-500">把人物在各章节中的行动、位置和状态单独维护，主表单只保留摘要预览。</div>
+              <button class="bamboo-btn-secondary px-4 py-2 text-sm" id="character-timeline-add" type="button">新增时间节点</button>
+            </div>
+            <div class="space-y-3" id="character-timeline-list"></div>
+          </div>
+          <div class="flex items-center justify-end gap-3 border-t border-slate-200/80 px-6 py-4">
+            <button class="bamboo-btn-secondary" id="character-timeline-cancel" type="button">取消</button>
+            <button class="bamboo-btn-primary" id="character-timeline-save" type="button">保存时间节点</button>
+          </div>
+        </div>
+      </div>
+    </template>
+    <script type="module" src="/static/js/app.js"></script>
+  </body>
+</html>

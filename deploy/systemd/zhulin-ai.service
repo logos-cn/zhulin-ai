@@ -1,0 +1,19 @@
+[Unit]
+Description=Zhulin AI FastAPI Service
+After=network.target
+
+[Service]
+Type=simple
+User=zhulin
+Group=zhulin
+WorkingDirectory=/opt/zhulin-ai
+Environment=APP_ENV=production
+Environment=HOST=0.0.0.0
+Environment=APP_PORT=199
+EnvironmentFile=-/opt/zhulin-ai/.env
+ExecStart=/bin/sh -c '/opt/zhulin-ai/.venv/bin/python -m uvicorn main:app --host "${HOST:-0.0.0.0}" --port "${APP_PORT:-199}"'
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target
